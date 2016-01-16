@@ -1,3 +1,8 @@
+var Profile = require('./Profile');
+var Repositories = require('./Repositories');
+var Notes = require('./Notes');
+var api = require('../Utils/api');
+
 import React, {
   Text,
   View,
@@ -41,13 +46,39 @@ class Dashboard extends Component{
     return obj;
   }
   goToProfile(){
-    console.log('Going to Profile Page');
+    this.props.navigator.push({
+      component: Profile,
+      title: 'Profile Page',
+      passProps: {userInfo: this.props.userInfo}
+    });
   }
   goToRepos(){
-    console.log('Going to Repos');
+    api.getRepos(this.props.userInfo.login)
+      .then((res) =>{
+        this.props.navigator.push({
+          component: Repositories,
+          title: 'Repositories',
+          passProps: {
+            userInfo: this.props.userInfo,
+            repos: res
+          }
+        });
+      })
+
   }
   goToNotes(){
-    console.log('Going to Notes');
+    api.getNotes(this.props.userInfo.login)
+      .then((res) => {
+        res = res || {};
+        this.props.navigator.push({
+          component: Notes,
+          title: 'Notes',
+          passProps: {
+            notes: res,
+            userInfo: this.props.userInfo
+          }
+        })
+      });
   }
 
   render(){
@@ -64,13 +95,13 @@ class Dashboard extends Component{
           style={this.makeBackground(1)}
           onPress={this.goToRepos.bind(this)}
           underlayColor='#88D4F5'>
-          <Text style={styles.buttonText}> View Profile </Text>
+          <Text style={styles.buttonText}> Repositories </Text>
         </TouchableHighlight>
         <TouchableHighlight
           style={this.makeBackground(2)}
           onPress={this.goToNotes.bind(this)}
           underlayColor='#88D4F5'>
-          <Text style={styles.buttonText}> View Profile </Text>
+          <Text style={styles.buttonText}> Notes </Text>
         </TouchableHighlight>
       </View>
     )
